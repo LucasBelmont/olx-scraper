@@ -23,23 +23,28 @@ class Database:
         self._init()
         return self._db
     
-    def insert_data(self, data: str | dict ) -> None:
-        conn = self.get_connection()
-        cur = conn.cursor()
-        if type(data) == str:
-            cur.execute("INSERT INTO table (nome, endereco, preco) VALUES (%s)", data)
-        if type(data) == dict:
-            cur.execute("INSERT INTO table (nome, endereco, preco) VALUES (%s, %s, %s)", data["title"], data["description"], data["announce_date"], data["price"], data["size", data["address", data["link"]]])
-
-        conn.commit()
-        cur.close()
-        conn.close()
+    def close_connection(self):
+        self._db.close()
     
-    def insert_data_query(self, query: str | dict , data: str | dict) -> None:
-        conn = self.get_connection()
-        cur = conn.cursor()
-        cur.execute(query, data)
-        conn.commit()
-        cur.close()
-        conn.close()
+    def insert_data(self, query: str | dict, data: str | dict ) -> None:
+        try:
+            conn = self.get_connection()
+            cur = conn.cursor()
+            # if type(data) == str:
+            #     cur.execute("INSERT INTO olx (wscp_titulo, wscp_data_hora, wscp_tamanho, wscp_valor, wscp_descricao, wscp_link, wscp_endereco) VALUES %s", (data))
+            # if type(data) == dict:
+            #     cur.execute("INSERT INTO olx (wscp_titulo, wscp_data_hora, wscp_tamanho, wscp_valor, wscp_descricao, wscp_link, wscp_endereco) VALUES (%s, %s, %s, %s, %s, %s, %s)", data["title"], data["description"], data["announce_date"], data["price"], data["size", data["address", data["link"]]])
+            cur.execute(query, data)
+            print("Inserindo dados no banco...")
+            conn.commit()
+        except Exception as e:
+            print(e)
+            
+    
+    # def insert_data_query(self, query: str | dict , data: str | dict) -> None:
+    #     conn = self.get_connection()
+    #     cur = conn.cursor()
+    #     cur.execute(query, data)
+    #     conn.commit()
+    #     conn.close()
         
