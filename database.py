@@ -1,4 +1,4 @@
-import psycopg2
+import psycopg
 import config
 
 class Database: 
@@ -7,12 +7,7 @@ class Database:
     def _init(self):
         if self._db is None:
             try: 
-                self._db = psycopg2.connect(
-                    host=config.DB_HOST, 
-                    database=config.DB_NAME, 
-                    user=config.DB_USER, 
-                    password=config.DB_PASSWORD
-                )
+                self._db = psycopg.connect(f"host={config.DB_HOST} dbname={config.DB_NAME} user={config.DB_USER} password={config.DB_PASSWORD}")
                 print("Conexão feita com sucesso!")
             except psycopg.OperationalError as e:
                 print(f"Erro ao criar a conexão com o banco de dados: [{e}]")

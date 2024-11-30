@@ -39,25 +39,27 @@ class Olx:
 
     def get_imoveis_page(self) -> list[str]:
         scraper = cloudscraper.create_scraper()
-        links = []
+        infos = []
         for es in self._estado.values():
             self._url = self._base_url_filter + "/" + es + "?o=1"
             response = scraper.get(self._url)
             soup = BeautifulSoup(response.content, 'html.parser')
-            a = soup.find_all(id=True, attrs={"data-ds-component" : "DS-NewAdCard-Link"})
-            for link in a:
-                print("\t\t\t\t\t\t Buscando Links...")
-                links.append(link['href'])
-              
-        return links  
+            cards = soup.find_all("section", attrs={"data-ds-component": "DS-AdCard"})
+            for card in cards:
+                print("\t\t\t\t\t\t Buscando Dados...")
+                a = card.contents[0]
+                size = card.find("ul", {"data-testid" : "labelGroup"}).text if card.find("ul", {"data-testid" : "labelGroup"}) else "N/D"
+                infos.append({"link": a['href'], "size": size})
+        return infos  
 
     def get_imovel_info(self) -> list[dict]:
         DATABASE = Database()
-        links = self.get_imoveis_page()
+        infos = self.get_imoveis_page()
         scraper = cloudscraper.create_scraper()
         imoveis = []
-        print(f"\t\t\t\t\t\t Foram coletados {len(links)} resultados!")
-        for link in links: 
+        print(f"\t\t\t\t\t\t Foram coletados {len(infos)} resultados!")
+        for info in infos:
+            link = info["link"] 
             print(f"Visitando: {link}")
             response = scraper.get(link)
             soup = BeautifulSoup(response.content, "html.parser")
@@ -69,8 +71,7 @@ class Olx:
             location = soup.find(id="location").find_all(attrs={"data-ds-component": "DS-Text"})
             location.pop(0)
             address = location[0].text + " " + location[1].text
-            size = soup.find(class_="olx-flex") if soup.find(class_="olx-flex") else "N/D"
-            # size = size.contents[1].text if size.contents[0].text.upper() == "ÁREA ÚTIL" or size.contents[0].text.upper() == "ÁREA CONSTRUÍDA" else "Não possui tamanho"
+            size = info["size"]
             QUERY = """
                 INSERT INTO olx (wscp_titulo, wscp_data_hora, wscp_tamanho, wscp_valor, wscp_descricao, wscp_link, wscp_endereco) 
                 VALUES (%s, %s, %s, %s, %s, %s, %s)  
