@@ -1,4 +1,5 @@
-import cloudscraper 
+import cloudscraper
+import re as r
 from bs4 import BeautifulSoup
 from database import Database
 
@@ -72,11 +73,14 @@ class Olx:
             location.pop(0)
             address = location[0].text + " " + location[1].text
             size = info["size"]
+            hectares = r.findall("[0-9]", size)
+            hectares = "".join(hectares) if hectares != [] else 0
+            hectares = float(hectares) / 10000 if hectares != 0 else 0
             QUERY = """
-                INSERT INTO olx (wscp_titulo, wscp_data_hora, wscp_tamanho, wscp_valor, wscp_descricao, wscp_link, wscp_endereco) 
-                VALUES (%s, %s, %s, %s, %s, %s, %s)  
+                INSERT INTO olx (wscp_titulo, wscp_data_hora, wscp_tamanho, wscp_valor, wscp_descricao, wscp_link, wscp_endereco, wscp_hectares) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)  
             """
-            VALUES = (title, announce_date, size, price, description, link, address)
+            VALUES = (title, announce_date, size, price, description, link, address, hectares)
             DATABASE.insert_data(QUERY, VALUES)
             imovel = [{
                 "title": title, 
@@ -86,6 +90,7 @@ class Olx:
                 "size": size,
                 "address": address,
                 "link": link, 
+                "hectares": hectares
             }]
             imoveis.append(imovel)
         

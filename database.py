@@ -36,10 +36,3 @@ class Database:
             print(e)
             
     
-    # def insert_data_query(self, query: str | dict , data: str | dict) -> None:
-    #     conn = self.get_connection()
-    #     cur = conn.cursor()
-    #     cur.execute(query, data)
-    #     conn.commit()
-    #     conn.close()
-        
