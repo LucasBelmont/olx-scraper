@@ -20,15 +20,25 @@ class Database:
     
     def close_connection(self):
         self._db.close()
-    
+    def delete_all(self, name: str):
+        conn = self.get_connection()
+        cur = conn.cursor()
+        cur.execute(f"DELETE FROM {name}")
+        print("Limpando tabela!")
+        cur.close()
+
     def insert_data(self, query: str | dict, data: str | dict ) -> None:
+        conn = self.get_connection()
+        cur = conn.cursor()
         try:
-            conn = self.get_connection()
-            cur = conn.cursor()
             cur.execute(query, data)
             print("Inserindo dados no banco...")
             conn.commit()
+        except psycopg.errors.UniqueViolation:
+            print("Dados já existente no banco")
+            conn.rollback()
         except Exception as e:
             print(e)
-            
+            cur.close
+            conn.close()
     
