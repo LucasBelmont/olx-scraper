@@ -1,12 +1,11 @@
 import cloudscraper
 import re as r
-import psycopg
 from bs4 import BeautifulSoup
 from database import Database
 
 class Olx:    
     _base_url = "https://www.olx.com.br/imoveis/venda"
-    _base_url_filter = "https://www.olx.com.br/imoveis/terrenos"
+    _base_url_filter = "https://www.olx.com.br/imoveis/terrenos/fazendas"
     _estado = { 
         # "AC": "estado-ac",
         # "AL": "estado-al",
@@ -41,9 +40,9 @@ class Olx:
     def get_imoveis_page(self) -> list[str]:
         scraper = cloudscraper.create_scraper()
         infos = []
-        for es in self._estado.values():
+        for st, es in self._estado.items():
             for i in range(1, 5):
-                self._url = self._base_url_filter + "/" + es + f"?o={i}"
+                self._url = self._base_url_filter + "/" + es + "?o=" + str(i)
                 print("Acessando página ", self._url)
                 response = scraper.get(self._url)
                 soup = BeautifulSoup(response.content, 'html.parser')
@@ -52,7 +51,8 @@ class Olx:
                     print("\t\t\t\t\t\t Buscando Dados...")
                     a = card.contents[0]
                     size = card.find("ul", {"data-testid" : "labelGroup"}).text if card.find("ul", {"data-testid" : "labelGroup"}) else "N/D"
-                    infos.append({"link": a['href'], "size": size})
+                    city = card.contents[2].find(class_="olx-ad-card__bottom").contents[0].find(class_="olx-text olx-text--caption olx-text--block olx-text--regular").text
+                    infos.append({"link": a['href'], "size": size, "state": st, "city": city})
         return infos  
 
     def get_imovel_info(self) -> list[dict]:
@@ -73,17 +73,21 @@ class Olx:
             prices = soup.find(id="price-box-container").find_all(attrs={"data-ds-component": "DS-Text"})
             price = prices[0].text if len(prices) > 0 else "Preço Não Registrado" 
             location = soup.find(id="location").find_all(attrs={"data-ds-component": "DS-Text"})
+            #Remove o título da div Location
             location.pop(0)
+            city = info["city"]
+            state = info["state"]
             address = location[0].text + " " + location[1].text
             size = info["size"]
             hectares = r.findall("[0-9]", size)
             hectares = "".join(hectares) if hectares != [] else 0
             hectares = float(hectares) / 10000 if hectares != 0 else 0
             QUERY = """
-                INSERT INTO olx (wscp_titulo, wscp_data_hora, wscp_tamanho, wscp_valor, wscp_descricao, wscp_link, wscp_endereco, wscp_hectares) 
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)  
+                INSERT INTO olx (wscp_titulo, wscp_data_hora, wscp_tamanho, wscp_valor, wscp_descricao, wscp_link, wscp_endereco, wscp_hectares, 
+                wscp_municipio, wscp_estado) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)  
             """
-            VALUES = (title, announce_date, size, price, description, link, address, hectares)
+            VALUES = (title, announce_date, size, price, description, link, address, hectares, city, state)
             
             DATABASE.insert_data(QUERY, VALUES)
             
@@ -95,7 +99,9 @@ class Olx:
                 "size": size,
                 "address": address,
                 "link": link, 
-                "hectares": hectares
+                "hectares": hectares,
+                "state": state,
+                "city": city,
             }]
             imoveis.append(imovel)
         

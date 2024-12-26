@@ -35,7 +35,7 @@ class Database:
             print("Inserindo dados no banco...")
             conn.commit()
         except psycopg.errors.UniqueViolation:
-            print("Dados já existente no banco")
+            print("Dados já existentes no banco")
             conn.rollback()
         except Exception as e:
             print(e)
