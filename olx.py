@@ -7,33 +7,33 @@ class Olx:
     _base_url = "https://www.olx.com.br/imoveis/venda"
     _base_url_filter = "https://www.olx.com.br/imoveis/terrenos/fazendas"
     _estado = { 
-        # "AC": "estado-ac",
-        # "AL": "estado-al",
-        # "AP": "estado-ap",
-        # "AM": "estado-am",
+        "AC": "estado-ac",
+        "AL": "estado-al",
+        "AP": "estado-ap",
+        "AM": "estado-am",
         "BA": "estado-ba",
-        # "CE": "estado-ce",
-        # "DF": "estado-df",
-        # "ES": "estado-es",
-        # "GO": "estado-go",
-        # "MA": "estado-ma",
-        # "MT": "estado-mt",
-        # "MS": "estado-ms",
-        # "MG": "estado-mg",
-        # "PA": "estado-pa",
-        # "PB": "estado-pb",
-        # "PR": "estado-pr",
-        # "PE": "estado-pe",
-        # "PI": "estado-pi",
-        # "RJ": "estado-rj",
-        # "RN": "estado-rn",
-        # "RS": "estado-rs",
-        # "RO": "estado-ro",
-        # "RR": "estado-rr",
-        # "SC": "estado-sc",
-        # "SP": "estado-sp",
-        # "SE": "estado-se",
-        # "TO": "estado-to"
+        "CE": "estado-ce",
+        "DF": "estado-df",
+        "ES": "estado-es",
+        "GO": "estado-go",
+        "MA": "estado-ma",
+        "MT": "estado-mt",
+        "MS": "estado-ms",
+        "MG": "estado-mg",
+        "PA": "estado-pa",
+        "PB": "estado-pb",
+        "PR": "estado-pr",
+        "PE": "estado-pe",
+        "PI": "estado-pi",
+        "RJ": "estado-rj",
+        "RN": "estado-rn",
+        "RS": "estado-rs",
+        "RO": "estado-ro",
+        "RR": "estado-rr",
+        "SC": "estado-sc",
+        "SP": "estado-sp",
+        "SE": "estado-se",
+        "TO": "estado-to"
     }
     _url = ""
 
@@ -41,7 +41,7 @@ class Olx:
         scraper = cloudscraper.create_scraper()
         infos = []
         for st, es in self._estado.items():
-            for i in range(1, 5):
+            for i in range(1, 8):
                 self._url = self._base_url_filter + "/" + es + "?o=" + str(i)
                 print("Acessando página ", self._url)
                 response = scraper.get(self._url)
@@ -67,8 +67,8 @@ class Olx:
             print(f"Visitando: {link}")
             response = scraper.get(link)
             soup = BeautifulSoup(response.content, "html.parser")
-            announce_date = soup.find(class_="olx-color-neutral-100").text
-            title = soup.find(id="description-title").find(attrs={"data-ds-component": "DS-Container"}).contents[0].text
+            announce_date = soup.find(class_="olx-color-neutral-100").text if soup.find(class_="olx-color-neutral-100") != None else "N/D"
+            title = soup.find("div", id="description-title").contents[0].span.text if soup.find("div", id="description-title") != None else "Sem Título"
             description = soup.find(attrs={"data-section" : "description"}).find(attrs={"data-ds-component": "DS-Text"}).text
             prices = soup.find(id="price-box-container").find_all(attrs={"data-ds-component": "DS-Text"})
             price = prices[0].text if len(prices) > 0 else "Preço Não Registrado" 
@@ -89,7 +89,8 @@ class Olx:
             """
             VALUES = (title, announce_date, size, price, description, link, address, hectares, city, state)
             
-            DATABASE.insert_data(QUERY, VALUES)
+            if hectares > 1:
+                DATABASE.insert_data(QUERY, VALUES)
             
             imovel = [{
                 "title": title, 
