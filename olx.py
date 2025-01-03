@@ -113,7 +113,7 @@ class Olx:
             #     "state": state,
             #     "city": city,
             # }]
-            imoveis.append(imovel)
+            # imoveis.append(imovel)
         
         DATABASE.close_connection()
         # return imoveis
