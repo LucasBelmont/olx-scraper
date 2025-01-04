@@ -23,9 +23,12 @@ class Database:
     def delete_all(self, query: str):
         conn = self.get_connection()
         cur = conn.cursor()
-        cur.execute(query)
-        print("Limpando tabela!")
-        cur.close()
+        try:
+            cur.execute(query)
+            print("Limpando tabela!")
+            cur.commit()
+        except Exception as e:
+            print("Erro ao limpar tabela", e)
 
     def insert_data(self, query: str | dict, data: str | dict ) -> None:
         conn = self.get_connection()
