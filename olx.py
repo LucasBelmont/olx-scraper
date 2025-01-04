@@ -44,12 +44,15 @@ class Olx:
         scraper = cloudscraper.create_scraper()
         infos = []
         for st, es in self._estado.items():
-            for i in range(1, 3):
+            for i in range(1, 101):
                 self._url = self._base_url_filter + "/" + es + "?o=" + str(i)
                 print("Acessando página ", self._url)
                 response = scraper.get(self._url)
                 soup = BeautifulSoup(response.content, 'html.parser')
                 cards = soup.find_all("section", attrs={"data-ds-component": "DS-AdCard"})
+                #Verificação se existem dados na página se não tiver pula pro próximo estado
+                if cards == [] or cards == None:
+                    break
                 for card in cards:
                     print("\t\t\t\t\t\t Buscando Dados...")
                     a = card.contents[0]
@@ -61,10 +64,10 @@ class Olx:
 #Método que limpa os dados antigos do banco, coleta os todos os dados dos imóveis e insere no banco
     def get_imovel_info(self) -> list[dict]:
         DATABASE = Database()
-        DATABASE.delete_all("OLX")
+        DATABASE.delete_all("DELETE FROM olx")
         infos = self.get_imoveis_page()
         scraper = cloudscraper.create_scraper()
-        imoveis = []
+        # imoveis = []
         print(f"\t\t\t\t\t\t Foram coletados {len(infos)} resultados!")
         for info in infos:
             link = info["link"] 

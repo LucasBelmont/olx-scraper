@@ -20,10 +20,10 @@ class Database:
     
     def close_connection(self):
         self._db.close()
-    def delete_all(self, name: str):
+    def delete_all(self, query: str):
         conn = self.get_connection()
         cur = conn.cursor()
-        cur.execute(f"DELETE FROM {name}")
+        cur.execute(query)
         print("Limpando tabela!")
         cur.close()
 
