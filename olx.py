@@ -76,9 +76,14 @@ class Olx:
             soup = BeautifulSoup(response.content, "html.parser")
             announce_date = soup.find(class_="olx-color-neutral-100").text if soup.find(class_="olx-color-neutral-100") != None else "N/D"
             title = soup.find("div", id="description-title").contents[0].span.text if soup.find("div", id="description-title") != None else "Sem Título"
-            description = soup.find(attrs={"data-section" : "description"}).find("span", attrs={"data-ds-component": "DS-Text"}).text if soup.find(attrs={"data-section" : "description"}).find("span", attrs={"data-ds-component": "DS-Text"}) != None else "Sem Descrição"
-            prices = soup.find(id="price-box-container").find_all(attrs={"data-ds-component": "DS-Text"}) if soup.find(id="price-box-container").find_all(attrs={"data-ds-component": "DS-Text"}) != None else []
-            price = prices[0].text if len(prices) > 0 else "Preço Não Registrado" 
+            description = soup.find(attrs={"data-section" : "description"}).find("span", attrs={"data-ds-component": "DS-Text"}).text if soup.find(attrs={"data-section" : "description"}) != None else "Sem Descrição"
+            prices = soup.find(id="price-box-container").find("span", attrs={"data-ds-component": "DS-Text"}, class_="olx-text olx-text--title-large olx-text--block").text if soup.find(id="price-box-container").find("span", attrs={"data-ds-component": "DS-Text"}, class_="olx-text olx-text--title-large olx-text--block") != None else 0
+            #Remove o R$ da string
+            price = prices.replace("R$", "").strip() if prices != 0 else 0
+            #Remove os pontos da string
+            price = price.replace(".", "").strip() if prices != 0 else 0
+            #Transforma valor de string em float
+            price = float(price) if price != 0 else 0
             location = soup.find(id="location").find_all(attrs={"data-ds-component": "DS-Text"})
             #Remove o título da div Location
             location.pop(0)

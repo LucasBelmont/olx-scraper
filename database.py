@@ -26,7 +26,6 @@ class Database:
         try:
             cur.execute(query)
             print("Limpando tabela!")
-            cur.commit()
         except Exception as e:
             print("Erro ao limpar tabela", e)
 
@@ -42,6 +41,7 @@ class Database:
             conn.rollback()
         except Exception as e:
             print(e)
+        finally:
             cur.close
             conn.close()
     
