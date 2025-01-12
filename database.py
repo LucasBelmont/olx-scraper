@@ -41,7 +41,4 @@ class Database:
             conn.rollback()
         except Exception as e:
             print(e)
-        finally:
-            cur.close
-            conn.close()
     
