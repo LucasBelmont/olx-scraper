@@ -111,8 +111,7 @@ class Olx:
                     DATABASE.insert_data(QUERY, VALUES)
             except Exception as e:
                 print("Erro ao acessar e salvar o imovel! ", e)
-            finally:
-                DATABASE.close_connection()
+        DATABASE.close_connection()
         print("\t \t \t \t Scraping finalizado!")
         # imovel = [{
         #     "title": title, 
