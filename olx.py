@@ -77,7 +77,7 @@ class Olx:
             announce_date = soup.find(class_="olx-color-neutral-100").text if soup.find(class_="olx-color-neutral-100") != None else "N/D"
             title = soup.find("div", id="description-title").find("span", class_="olx-text olx-text--title-medium olx-text--block ad__sc-1l883pa-2 bdcWAn").text if soup.find("div", id="description-title") != None else "Sem Título"
             description = soup.find(attrs={"data-section" : "description"}).find("span", attrs={"data-ds-component": "DS-Text"}).text if soup.find(attrs={"data-section" : "description"}) != None else "Sem Descrição"
-            prices = soup.find(id="price-box-container").find("span", class_="olx-text olx-text--title-large olx-text--block").text if soup.find(id="price-box-container").find("span", class_="olx-text olx-text--title-large olx-text--block") != None else 0
+            prices = soup.find("span", class_="olx-text olx-text--title-large olx-text--block").text if soup.find("span", class_="olx-text olx-text--title-large olx-text--block") != None else 0
             #Remove o R$ da string
             price = prices.replace("R$", "").strip() if prices != 0 else 0
             #Remove os pontos da string
