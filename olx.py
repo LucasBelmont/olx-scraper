@@ -74,54 +74,58 @@ class Olx:
             print(f"Visitando: {link}")
             response = scraper.get(link)
             soup = BeautifulSoup(response.content, "html.parser")
-            announce_date = soup.find(class_="olx-color-neutral-100").text if soup.find(class_="olx-color-neutral-100") != None else "N/D"
-            title = soup.find("div", id="description-title").find("span", class_="olx-text olx-text--title-medium olx-text--block ad__sc-1l883pa-2 bdcWAn").text if soup.find("div", id="description-title") != None else "Sem Título"
-            description = soup.find(attrs={"data-section" : "description"}).find("span", attrs={"data-ds-component": "DS-Text"}).text if soup.find(attrs={"data-section" : "description"}) != None else "Sem Descrição"
-            prices = soup.find("span", class_="olx-text olx-text--title-large olx-text--block").text if soup.find("span", class_="olx-text olx-text--title-large olx-text--block") != None else 0
-            #Remove o R$ da string
-            price = prices.replace("R$", "").strip() if prices != 0 else 0
-            #Remove os pontos da string
-            price = price.replace(".", "").strip() if prices != 0 else 0
-            #Transforma valor de string em float
-            price = float(price) if price != 0 else 0
-            location = soup.find(id="location").find_all(attrs={"data-ds-component": "DS-Text"})
-            #Remove o título da div Location
-            location.pop(0)
-            city = info["city"]
-            #Remove bairro se tiver junto com a cidade separado por vírgula
-            city = city.split(",")[0] if r.search(",", city) != None else city
-            state = info["state"]
-            address = location[0].text + " " + location[1].text
-            size = info["size"]
-            #Remove os caracteres que não sejam números
-            hectares = r.findall("[0-9]", size)
-            #Transforma os tamanho separados em arrays em string
-            hectares = "".join(hectares) if hectares != [] else 0
-            #Converte o valor em float e converte o tamanho em hectares
-            hectares = float(hectares) / 10000 if hectares != 0 else 0
-            QUERY = """
-                INSERT INTO olx (wscp_titulo, wscp_data_hora, wscp_tamanho, wscp_valor, wscp_descricao, wscp_link, wscp_endereco, wscp_hectares, 
-                wscp_municipio, wscp_estado) 
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)  
-            """
-            VALUES = (title, announce_date, size, price, description, link, address, hectares, city, state)
-            
-            if hectares > 1:
-                DATABASE.insert_data(QUERY, VALUES)
-            
-            # imovel = [{
-            #     "title": title, 
-            #     "description": description, 
-            #     "announce_date": announce_date,
-            #     "price": price, 
-            #     "size": size,
-            #     "address": address,
-            #     "link": link, 
-            #     "hectares": hectares,
-            #     "state": state,
-            #     "city": city,
-            # }]
-            # imoveis.append(imovel)
+            try:
+                announce_date = soup.find(class_="olx-color-neutral-100").text if soup.find(class_="olx-color-neutral-100") != None else "N/D"
+                title = soup.find("div", id="description-title").find("span", class_="olx-text olx-text--title-medium olx-text--block ad__sc-1l883pa-2 bdcWAn").text if soup.find("div", id="description-title") != None else "Sem Título"
+                description = soup.find(attrs={"data-section" : "description"}).find("span", attrs={"data-ds-component": "DS-Text"}).text if soup.find(attrs={"data-section" : "description"}) != None else "Sem Descrição"
+                prices = soup.find("span", class_="olx-text olx-text--title-large olx-text--block").text if soup.find("span", class_="olx-text olx-text--title-large olx-text--block") != None else 0
+                #Remove o R$ da string
+                price = prices.replace("R$", "").strip() if prices != 0 else 0
+                #Remove os pontos da string
+                price = price.replace(".", "").strip() if prices != 0 else 0
+                #Transforma valor de string em float
+                price = float(price) if price != 0 else 0
+                location = soup.find(id="location").find_all(attrs={"data-ds-component": "DS-Text"})
+                #Remove o título da div Location
+                location.pop(0)
+                city = info["city"]
+                #Remove bairro se tiver junto com a cidade separado por vírgula
+                city = city.split(",")[0] if r.search(",", city) != None else city
+                state = info["state"]
+                address = location[0].text + " " + location[1].text
+                size = info["size"]
+                #Remove os caracteres que não sejam números
+                hectares = r.findall("[0-9]", size)
+                #Transforma os tamanho separados em arrays em string
+                hectares = "".join(hectares) if hectares != [] else 0
+                #Converte o valor em float e converte o tamanho em hectares
+                hectares = float(hectares) / 10000 if hectares != 0 else 0
+                QUERY = """
+                    INSERT INTO olx (wscp_titulo, wscp_data_hora, wscp_tamanho, wscp_valor, wscp_descricao, wscp_link, wscp_endereco, wscp_hectares, 
+                    wscp_municipio, wscp_estado) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)  
+                """
+                VALUES = (title, announce_date, size, price, description, link, address, hectares, city, state)
+                
+                if hectares > 1:
+                    DATABASE.insert_data(QUERY, VALUES)
+            except Exception as e:
+                print("Erro ao acessar e salvar o imovel! ", e)
+            finally:
+                DATABASE.close_connection()
+        print("\t \t \t \t Scraping finalizado!")
+        # imovel = [{
+        #     "title": title, 
+        #     "description": description, 
+        #     "announce_date": announce_date,
+        #     "price": price, 
+        #     "size": size,
+        #     "address": address,
+        #     "link": link, 
+        #     "hectares": hectares,
+        #     "state": state,
+        #     "city": city,
+        # }]
+        # imoveis.append(imovel)
         
-        DATABASE.close_connection()
         # return imoveis
