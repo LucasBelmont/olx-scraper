@@ -63,18 +63,18 @@ class Olx:
 
 #Método que limpa os dados antigos do banco, coleta os todos os dados dos imóveis e insere no banco
     def get_imovel_info(self) -> list[dict]:
+        infos = self.get_imoveis_page()
         DATABASE = Database()
         DATABASE.delete_all("DELETE FROM olx")
-        infos = self.get_imoveis_page()
         scraper = cloudscraper.create_scraper()
         # imoveis = []
         print(f"\t\t\t\t\t\t Foram coletados {len(infos)} resultados!")
         for info in infos:
-            link = info["link"] 
-            print(f"Visitando: {link}")
-            response = scraper.get(link)
-            soup = BeautifulSoup(response.content, "html.parser")
             try:
+                link = info["link"] 
+                print(f"Visitando: {link}")
+                response = scraper.get(link)
+                soup = BeautifulSoup(response.content, "html.parser")
                 announce_date = soup.find(class_="olx-color-neutral-100").text if soup.find(class_="olx-color-neutral-100") != None else "N/D"
                 title = soup.find("div", id="description-title").find("span", class_="olx-text olx-text--title-medium olx-text--block ad__sc-1l883pa-2 bdcWAn").text if soup.find("div", id="description-title") != None else "Sem Título"
                 description = soup.find(attrs={"data-section" : "description"}).find("span", attrs={"data-ds-component": "DS-Text"}).text if soup.find(attrs={"data-section" : "description"}) != None else "Sem Descrição"
