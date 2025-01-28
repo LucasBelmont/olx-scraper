@@ -1,5 +1,6 @@
 import cloudscraper
 import re as r
+import datetime
 from bs4 import BeautifulSoup
 from database import Database
 
@@ -10,32 +11,32 @@ class Olx:
     #Filtro de Estados
     _estado = { 
         "AC": "estado-ac",
-        "AL": "estado-al",
-        "AP": "estado-ap",
-        "AM": "estado-am",
-        "BA": "estado-ba",
-        "CE": "estado-ce",
-        "DF": "estado-df",
-        "ES": "estado-es",
-        "GO": "estado-go",
-        "MA": "estado-ma",
-        "MT": "estado-mt",
-        "MS": "estado-ms",
-        "MG": "estado-mg",
-        "PA": "estado-pa",
-        "PB": "estado-pb",
-        "PR": "estado-pr",
-        "PE": "estado-pe",
-        "PI": "estado-pi",
-        "RJ": "estado-rj",
-        "RN": "estado-rn",
-        "RS": "estado-rs",
-        "RO": "estado-ro",
-        "RR": "estado-rr",
-        "SC": "estado-sc",
-        "SP": "estado-sp",
-        "SE": "estado-se",
-        "TO": "estado-to"
+        # "AL": "estado-al",
+        # "AP": "estado-ap",
+        # "AM": "estado-am",
+        # "BA": "estado-ba",
+        # "CE": "estado-ce",
+        # "DF": "estado-df",
+        # "ES": "estado-es",
+        # "GO": "estado-go",
+        # "MA": "estado-ma",
+        # "MT": "estado-mt",
+        # "MS": "estado-ms",
+        # "MG": "estado-mg",
+        # "PA": "estado-pa",
+        # "PB": "estado-pb",
+        # "PR": "estado-pr",
+        # "PE": "estado-pe",
+        # "PI": "estado-pi",
+        # "RJ": "estado-rj",
+        # "RN": "estado-rn",
+        # "RS": "estado-rs",
+        # "RO": "estado-ro",
+        # "RR": "estado-rr",
+        # "SC": "estado-sc",
+        # "SP": "estado-sp",
+        # "SE": "estado-se",
+        # "TO": "estado-to"
     }
     _url = ""
 
@@ -111,7 +112,12 @@ class Olx:
                     DATABASE.insert_data(QUERY, VALUES)
             except Exception as e:
                 print("Erro ao acessar e salvar o imovel! ", e)
+        QUERY_TRIGGER = """INSERT INTO simet2_data_wscp (dt_wscp) VALUES (%s) """
+        VALUES_TRIGGER = (datetime.datetime.now(),)
+        print("Ativando Trigger!")
+        DATABASE.insert_data(QUERY_TRIGGER, VALUES_TRIGGER)
         DATABASE.close_connection()
+        return infos
         print("\t \t \t \t Scraping finalizado!")
         # imovel = [{
         #     "title": title, 
